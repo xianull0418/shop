@@ -20,7 +20,8 @@
                     <van-image
                         width="60"
                         height="60"
-                        :src="item.productImage || '/placeholder.png'"
+                        :src="getImageUrl(item.productImage)"
+                        radius="8"
                     />
                     <div class="product-info">
                         <div class="product-name">{{ item.productName }}</div>
@@ -75,6 +76,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { showToast, showDialog } from 'vant'
 import { cancelOrder, payOrder } from '@/api/order'
+import { API_BASE_URL } from '@/config'
 
 const statusMap = {
     'pending': '待付款',
@@ -105,6 +107,12 @@ export default {
             return order.items.reduce((total, item) => total + item.quantity, 0)
         }
 
+        const getImageUrl = (url) => {
+            if (!url) return '/placeholder.png'
+            if (url.startsWith('http')) return url
+            return `${API_BASE_URL}${url}`
+        }
+
         const handleCancel = async (orderId) => {
             try {
                 await showDialog({
@@ -116,7 +124,6 @@ export default {
                 cancelLoading.value = orderId
                 await cancelOrder(orderId)
                 showToast('订单已取消')
-                // 通知父组件刷新列表
                 emit('refresh')
             } catch (error) {
                 if (error.message !== 'cancel') {
@@ -132,7 +139,6 @@ export default {
                 payLoading.value = orderId
                 await payOrder(orderId)
                 showToast('支付成功')
-                // 通知父组件刷新列表
                 emit('refresh')
             } catch (error) {
                 showToast(error.message || '支付失败')
@@ -152,7 +158,8 @@ export default {
             handleCancel,
             handlePay,
             handleViewDetail,
-            getStatusText
+            getStatusText,
+            getImageUrl
         }
     }
 }
@@ -165,35 +172,39 @@ export default {
 
 .order-item {
     background: #fff;
-    border-radius: 8px;
+    border-radius: 12px;
     margin-bottom: 12px;
-    padding: 16px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .order-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-bottom: 12px;
+    padding: 12px 16px;
     border-bottom: 1px solid #f5f5f5;
 }
 
 .order-no {
     font-size: 14px;
-    color: #323233;
+    color: #666;
 }
 
 .order-status {
     font-size: 14px;
     color: var(--van-primary-color);
+    font-weight: 500;
 }
 
 .order-content {
-    padding: 12px 0;
+    padding: 16px;
+    border-bottom: 1px solid #f5f5f5;
 }
 
 .order-product {
     display: flex;
+    align-items: center;
     margin-bottom: 12px;
 }
 
@@ -204,45 +215,55 @@ export default {
 .product-info {
     flex: 1;
     margin-left: 12px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
 }
 
 .product-name {
     font-size: 14px;
-    color: #323233;
+    color: #333;
+    margin-bottom: 4px;
 }
 
 .product-price {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     font-size: 14px;
-    color: #969799;
 }
 
-.quantity {
-    margin-left: 8px;
+.product-price .quantity {
+    color: #999;
 }
 
 .order-footer {
+    padding: 12px 16px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-top: 12px;
-    border-top: 1px solid #f5f5f5;
 }
 
 .total-amount {
     font-size: 14px;
-    color: #323233;
+    color: #666;
 }
 
-.price {
+.total-amount .price {
+    font-size: 16px;
     font-weight: bold;
-    color: var(--van-danger-color);
+    color: #ff6b6b;
 }
 
 .order-actions {
     display: flex;
     gap: 8px;
+}
+
+.order-actions :deep(.van-button) {
+    border-radius: 14px;
+    padding: 0 12px;
+}
+
+.order-actions :deep(.van-button--normal) {
+    height: 28px;
+    line-height: 26px;
 }
 </style> 

@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useUserStore } from '@/stores/user'
+import NotFound from '@/views/NotFound.vue'
 
 const routes = [
     {
@@ -110,6 +111,11 @@ const routes = [
                 meta: { title: '用户管理' }
             }
         ]
+    },
+    {
+        path: '/:pathMatch(.*)*',
+        name: 'NotFound',
+        component: NotFound
     }
 ]
 

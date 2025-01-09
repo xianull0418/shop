@@ -36,7 +36,7 @@
                 <van-image
                     width="60"
                     height="60"
-                    :src="item.imageUrl || '/placeholder.png'"
+                    :src="getImageUrl(item.imageUrl)"
                     @click="showProductDetail(item)"
                 />
                 <div class="item-info">
@@ -181,12 +181,13 @@
 
 <script>
 import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { showToast, showDialog } from 'vant'
 import { useCartStore } from '@/stores/cart'
 import { useUserStore } from '@/stores/user'
 import { createOrder } from '@/api/order'
 import { getDefaultAddress, getAddressList } from '@/api/address'
+import { API_BASE_URL } from '@/config'
 
 export default {
     name: 'CheckoutPage',
@@ -325,6 +326,12 @@ export default {
         // 初始化加载
         loadDefaultAddress()
 
+        const getImageUrl = (url) => {
+            if (!url) return '/placeholder.png'
+            if (url.startsWith('http')) return url
+            return `${API_BASE_URL}${url}`
+        }
+
         // 显示商品详情
         const showProductDetail = (product) => {
             currentProduct.value = product
@@ -350,6 +357,7 @@ export default {
             showProductPopup,
             currentProduct,
             showProductDetail,
+            getImageUrl,
         }
     }
 }

@@ -16,8 +16,9 @@
                     注册
                 </el-button>
             </el-form-item>
-            <div class="links">
-                <router-link to="/login">已有账号？去登录</router-link>
+            <div class="login-link">
+                已有账号？
+                <router-link to="/mobile/login">去登录</router-link>
             </div>
         </el-form>
     </div>

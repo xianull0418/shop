@@ -33,6 +33,7 @@
                     :price="product.price.toFixed(2)"
                     :title="product.name"
                     :thumb="getImageUrl(product.imageUrl)"
+                    @click-thumb="showProductDetail(product)"
                 >
                     <template #footer>
                         <div class="product-stepper">
@@ -133,7 +134,7 @@
                         width="100%"
                         height="200"
                         fit="cover"
-                        :src="currentProduct.imageUrl || '/placeholder.png'"
+                        :src="getImageUrl(currentProduct.imageUrl)"
                     />
                 </div>
                 <div class="product-content">
@@ -317,55 +318,76 @@ export default {
     height: 100vh;
     display: flex;
     flex-direction: column;
-    padding-bottom: 50px;
+    background: #f8f9fa;
 }
 
 .menu-container {
     flex: 1;
     display: flex;
     overflow: hidden;
+    padding: 12px 0 62px;
 }
 
 .category-list {
-    width: 100px;
-    background: #f7f8fa;
+    width: 85px;
+    background: #fff;
     overflow-y: auto;
+    padding: 8px 0;
+    margin-right: 1px;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.02);
 }
 
 .category-item {
-    padding: 16px 12px;
+    padding: 16px 8px;
     text-align: center;
-    font-size: 14px;
+    font-size: 13px;
     cursor: pointer;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 8px;
+    position: relative;
+    transition: all 0.3s ease;
 }
 
 .category-item.active {
-    background: #fff;
+    background: #f0f7ff;
     color: var(--van-primary-color);
+    font-weight: 500;
+}
+
+.category-item.active::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 20px;
+    background: var(--van-primary-color);
+    border-radius: 0 4px 4px 0;
 }
 
 .category-icon-wrapper {
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 50%;
+    border-radius: 12px;
     background: var(--van-primary-color-light);
-    transition: all 0.3s;
+    transition: all 0.3s ease;
 }
 
 .category-item.active .category-icon-wrapper {
     background: var(--van-primary-color);
+    transform: scale(1.05);
 }
 
 .category-icon-wrapper :deep(.el-icon) {
     color: var(--van-primary-color);
-    transition: all 0.3s;
+    transition: all 0.3s ease;
+    font-size: 20px;
 }
 
 .category-item.active .category-icon-wrapper :deep(.el-icon) {
@@ -374,49 +396,113 @@ export default {
 
 .product-list {
     flex: 1;
-    padding: 12px;
+    padding: 0 12px;
     overflow-y: auto;
-    background: #fff;
+    background: #f8f9fa;
 }
 
 .product-list :deep(.van-card) {
-    background: #f7f8fa;
+    background: #fff;
     margin-bottom: 12px;
-    border-radius: 8px;
+    border-radius: 16px;
+    padding: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03);
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0, 0, 0, 0.02);
+}
+
+.product-list :deep(.van-card:hover) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
 }
 
 .product-list :deep(.van-card__title) {
-    font-size: 14px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 4px;
 }
 
 .product-list :deep(.van-card__price) {
-    color: var(--van-danger-color);
-    font-size: 16px;
+    color: #ff6b6b;
+    font-size: 17px;
+    font-weight: bold;
+}
+
+.product-list :deep(.van-card__price-integer) {
+    font-size: 20px;
+}
+
+.product-list :deep(.van-card__thumb) {
+    width: 100px;
+    height: 100px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .product-stepper {
     display: flex;
     align-items: center;
     gap: 8px;
+    margin-top: 12px;
 }
 
 .product-stepper .count {
-    min-width: 24px;
+    min-width: 32px;
     text-align: center;
+    font-size: 15px;
+    font-weight: 500;
+    color: #2c3e50;
+}
+
+.product-stepper :deep(.van-button) {
+    padding: 0;
+    transition: all 0.2s ease;
+    border: none;
+}
+
+.product-stepper :deep(.van-button--mini) {
+    height: 32px;
+}
+
+/* 加减按钮样式 */
+.product-stepper :deep(.van-button--mini:not(:last-child)) {
+    width: 32px;
+    border-radius: 50%;
+}
+
+/* 加入购物车按钮样式 */
+.product-stepper :deep(.van-button--mini:last-child) {
+    padding: 0 16px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, var(--van-primary-color), #4dabf7);
+    box-shadow: 0 2px 8px rgba(var(--van-primary-color-rgb), 0.2);
+}
+
+.product-stepper :deep(.van-button:active) {
+    transform: scale(0.95);
+}
+
+.product-stepper :deep(.van-button--normal) {
+    font-size: 14px;
+    color: #fff;
+    font-weight: 500;
 }
 
 /* 购物车结算栏 */
 .cart-bar {
     position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 50px;
-    height: 50px;
+    left: 12px;
+    right: 12px;
+    bottom: 62px;
+    height: 56px;
     background: #fff;
     display: flex;
     align-items: center;
     padding: 0 16px;
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+    border-radius: 28px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
 }
 
 .cart-info {
@@ -428,13 +514,19 @@ export default {
 }
 
 .cart-icon {
-    width: 40px;
-    height: 40px;
-    background: var(--van-primary-color);
+    width: 44px;
+    height: 44px;
+    background: linear-gradient(135deg, var(--van-primary-color), #4dabf7);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
+    box-shadow: 0 4px 12px rgba(var(--van-primary-color-rgb), 0.2);
+    transition: all 0.3s ease;
+}
+
+.cart-icon:active {
+    transform: scale(0.95);
 }
 
 .cart-icon :deep(.van-icon) {
@@ -447,146 +539,262 @@ export default {
 }
 
 .total-price {
-    font-size: 20px;
+    font-size: 22px;
     font-weight: bold;
-    color: var(--van-danger-color);
+    color: #ff6b6b;
+    text-shadow: 0 1px 2px rgba(255, 107, 107, 0.1);
 }
 
 .submit-btn {
-    width: 100px;
-    height: 36px;
-    border-radius: 18px;
+    width: 120px;
+    height: 44px;
+    border-radius: 22px;
+    font-size: 16px;
+    font-weight: 500;
+    background: linear-gradient(135deg, var(--van-primary-color), #4dabf7);
+    border: none;
+    box-shadow: 0 4px 12px rgba(var(--van-primary-color-rgb), 0.2);
+    transition: all 0.3s ease;
+}
+
+.submit-btn:active {
+    transform: scale(0.98);
 }
 
 /* 购物车弹窗 */
 .cart-popup {
-    max-height: 70vh;
+    max-height: 80vh;
     overflow-y: auto;
+    border-radius: 24px 24px 0 0;
+    background: #f8f9fa;
 }
 
 .popup-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 16px;
-    border-bottom: 1px solid #f5f5f5;
+    padding: 20px;
+    background: #fff;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
 }
 
 .popup-header .title {
-    font-size: 16px;
-    font-weight: bold;
+    font-size: 18px;
+    font-weight: 600;
+    color: #2c3e50;
 }
 
 .popup-header .clear {
-    color: #999;
+    color: #666;
     font-size: 14px;
+    padding: 8px 16px;
+    background: #f1f3f5;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+}
+
+.popup-header .clear:active {
+    background: #e9ecef;
 }
 
 .cart-list {
-    padding: 16px;
+    padding: 16px 20px;
 }
 
 .cart-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 16px;
+    padding: 16px;
+    margin-bottom: 12px;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+.cart-item:last-child {
+    margin-bottom: 0;
 }
 
 .item-info h4 {
-    margin: 0 0 4px;
-    font-size: 14px;
+    margin: 0 0 6px;
+    font-size: 15px;
+    font-weight: 500;
+    color: #2c3e50;
 }
 
 .item-info .price {
-    color: var(--van-danger-color);
-    font-size: 16px;
+    color: #ff6b6b;
+    font-size: 17px;
+    font-weight: bold;
 }
 
 .item-stepper {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
 }
 
 .item-stepper .count {
-    min-width: 24px;
+    min-width: 32px;
     text-align: center;
+    font-size: 16px;
+    font-weight: 500;
+    color: #2c3e50;
 }
 
+.item-stepper :deep(.van-button) {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border-radius: 50%;
+    background: var(--van-primary-color);
+    border: none;
+    color: #fff;
+    transition: all 0.2s ease;
+}
+
+.item-stepper :deep(.van-button:active) {
+    transform: scale(0.95);
+}
+
+/* 商品详情弹窗 */
 .product-popup {
-    width: 90%;
+    width: 92%;
     max-width: 375px;
-    border-radius: 16px;
+    border-radius: 24px;
+    overflow: hidden;
+    background: #f8f9fa;
 }
 
 .product-detail {
     position: relative;
+    background: #fff;
 }
 
 .product-header {
-    border-radius: 16px 16px 0 0;
+    position: relative;
+    width: 100%;
+    height: 280px;
     overflow: hidden;
 }
 
+.product-header :deep(.van-image) {
+    width: 100%;
+    height: 100%;
+}
+
+.product-header :deep(.van-image img) {
+    object-fit: cover;
+    transform: scale(1.02);
+}
+
 .product-content {
-    padding: 16px;
+    padding: 24px;
+    background: #fff;
+    border-radius: 24px 24px 0 0;
+    margin-top: -24px;
+    position: relative;
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.06);
 }
 
 .product-name {
-    margin: 0 0 12px;
-    font-size: 18px;
+    margin: 0 0 16px;
+    font-size: 22px;
     font-weight: bold;
-    color: #323233;
+    color: #2c3e50;
+    line-height: 1.4;
 }
 
 .product-price-info {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 16px;
+    margin-bottom: 24px;
 }
 
 .product-price {
-    font-size: 20px;
+    font-size: 28px;
     font-weight: bold;
-    color: var(--van-danger-color);
+    color: #ff6b6b;
+    text-shadow: 0 1px 2px rgba(255, 107, 107, 0.1);
+}
+
+.stepper {
+    display: flex;
+    align-items: center;
+}
+
+.stepper :deep(.van-stepper) {
+    height: 36px;
+    background: #f8f9fa;
+    border-radius: 18px;
+    padding: 0 4px;
+}
+
+.stepper :deep(.van-stepper__input) {
+    height: 36px;
+    font-size: 16px;
+    background: transparent;
+}
+
+.stepper :deep(.van-stepper__minus),
+.stepper :deep(.van-stepper__plus) {
+    width: 36px;
+    height: 36px;
+    background: var(--van-primary-color);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    margin: 0;
 }
 
 .product-description {
-    border-top: 1px solid #f5f5f5;
-    padding-top: 16px;
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid #edf2f7;
 }
 
 .product-description h4 {
-    margin: 0 0 8px;
-    font-size: 14px;
-    color: #323233;
+    margin: 0 0 12px;
+    font-size: 17px;
+    color: #2c3e50;
+    font-weight: 600;
 }
 
 .product-description p {
     margin: 0;
-    font-size: 14px;
-    color: #666;
+    font-size: 15px;
+    color: #4a5568;
     line-height: 1.6;
 }
 
 .popup-close {
     position: absolute;
-    top: 8px;
-    right: 8px;
-    width: 24px;
-    height: 24px;
-    background: rgba(0, 0, 0, 0.3);
+    top: 16px;
+    right: 16px;
+    width: 36px;
+    height: 36px;
+    background: rgba(0, 0, 0, 0.4);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    backdrop-filter: blur(8px);
+    transition: all 0.3s ease;
+}
+
+.popup-close:hover {
+    background: rgba(0, 0, 0, 0.5);
+    transform: rotate(90deg);
 }
 
 .popup-close :deep(.van-icon) {
     color: #fff;
-    font-size: 16px;
+    font-size: 20px;
 }
 </style> 
